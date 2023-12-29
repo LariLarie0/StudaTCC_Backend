@@ -1,5 +1,6 @@
 package com.StudaTCC.demo.usuario;
 
+import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,8 +10,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,41 +22,30 @@ import java.util.Collections;
 @Entity
 public class Usuario implements UserDetails {
 
-    @Getter
-    @SequenceGenerator(
-            name = "student_sequence",
-            sequenceName = "student_sequence",
-            allocationSize = 1
-    )
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConfirmationToken> tokens = new ArrayList<>();
+
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "student_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @Setter
-    @Getter
     private String nome;
-    @Setter
-    @Getter
     private String sobrenome;
-    @Setter
-    @Getter
-    private String user;
-    @Setter
-    @Getter
+    @Column(unique = true)
+    private String nickName;
     private String email;
-    @Setter
     private String senha;
+    @Column(columnDefinition = "TEXT")
+    private String imagemPerfil = "https://img.icons8.com/ios/50/user--v1.png";
+
     @Enumerated(EnumType.STRING)
     private UsuarioRole usuarioRole;
     private Boolean locked = false;
     private Boolean enabled = false;
 
-    public Usuario(String nome, String sobrenome, String user, String email, String senha, UsuarioRole usuarioRole) {
+    public Usuario(String nome, String sobrenome, String nickName, String email, String senha, UsuarioRole usuarioRole) {
         this.nome = nome;
         this.sobrenome = sobrenome;
-        this.user = user;
+        this.nickName = nickName;
         this.email = email;
         this.senha = senha;
         this.usuarioRole = usuarioRole;

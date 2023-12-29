@@ -2,10 +2,9 @@ package com.StudaTCC.demo.cadastro;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import com.StudaTCC.demo.cadastro.CadastroService;
 
 @RestController
-@RequestMapping("/api/v1/cadastro")
+@RequestMapping("/cadastro")
 @AllArgsConstructor
 public class CadastroController {
 
@@ -21,5 +20,3 @@ public class CadastroController {
         return cadastroService.confirmToken(token);
     }
 }
-
-

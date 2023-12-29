@@ -1,10 +1,12 @@
 package com.StudaTCC.demo.cadastro.token;
 
+import com.StudaTCC.demo.usuario.Usuario;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor

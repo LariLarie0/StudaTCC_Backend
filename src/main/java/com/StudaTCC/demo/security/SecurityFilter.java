@@ -1,7 +1,7 @@
 package com.StudaTCC.demo.security;
 
 import com.StudaTCC.demo.usuario.Usuario;
-import com.StudaTCC.demo.usuario.UsuarioRepositorio;
+import com.StudaTCC.demo.usuario.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepositorio usuarioRepositorio;
+    private UsuarioRepository usuarioRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -52,7 +52,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private Usuario confereLoginUsuario(String login){
-        var usuarios = usuarioRepositorio.findAll();
+        var usuarios = usuarioRepository.findAll();
         for(Usuario usu : usuarios){
             var email = usu.getEmail();
             if(login.equals(email)){

@@ -1,7 +1,9 @@
 package com.StudaTCC.demo.cadastro;
 
-import com.StudaTCC.demo.usuario.Usuario;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.validator.constraints.UniqueElements;
 
 @Setter
 @Getter
@@ -9,9 +11,14 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class CadastroRequest {
-        private String nome;
-        private String sobrenome;
-        private String user;
-        private String email;
-        private String senha;
+    @NotBlank
+    private String nome;
+    @NotBlank
+    private String sobrenome;
+    @NotBlank
+    private String nickName;
+    @NotBlank
+    private String email;
+    @NotBlank
+    private String senha;
 }

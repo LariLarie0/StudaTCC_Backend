@@ -13,33 +13,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 public class ConfirmationToken {
-    @SequenceGenerator(
-            name = "confirmation_token_sequence",
-            sequenceName = "confirmation_token_sequence",
-            allocationSize = 1
-    )
-    @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "confirmation_token_sequence"
-    )
-    private Long id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     @Column(nullable = false)
     private String token;
-
-    @Getter
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Getter
     @Column(nullable = false)
     private LocalDateTime expiresAt;
-
-    @Getter
     private LocalDateTime confirmedAt;
 
-    @Getter
     @ManyToOne
     @JoinColumn(
             nullable = false,

@@ -3,7 +3,7 @@ package com.StudaTCC.demo.cadastro;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.StudaTCC.demo.usuario.UsuarioRole;
 import com.StudaTCC.demo.usuario.UsuarioService;
-import com.StudaTCC.demo.email.EmailSender;
+import com.StudaTCC.demo.cadastro.email.EmailSender;
 import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
 import com.StudaTCC.demo.cadastro.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ public class CadastroService {
                 new Usuario(
                         request.getNome(),
                         request.getSobrenome(),
-                        request.getUser(),
+                        request.getNickName(),
                         request.getEmail(),
                         request.getSenha(),
                         UsuarioRole.USER

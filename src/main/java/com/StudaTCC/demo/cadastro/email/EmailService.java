@@ -1,4 +1,4 @@
-package com.StudaTCC.demo.email;
+package com.StudaTCC.demo.cadastro.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
