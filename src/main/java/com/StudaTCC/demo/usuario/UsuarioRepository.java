@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-@Transactional(readOnly = true)
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
@@ -18,4 +17,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Modifying
     @Query("UPDATE Usuario a " + "SET a.enabled = TRUE WHERE a.email = ?1")
     int enableUsuario(String email);
+
+   Optional<Usuario> findByNickName(String nickName);
 }

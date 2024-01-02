@@ -1,7 +1,9 @@
 package com.StudaTCC.demo;
 
-public record TokenRequest(String token, Long id) {
+public record TokenRequest(
+        String token
+) {
     public TokenRequest(TokenRequest tokenJWT) {
-        this(tokenJWT.token(), tokenJWT.id());
+        this(tokenJWT.token());
     }
 }

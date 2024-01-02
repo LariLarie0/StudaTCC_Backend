@@ -30,7 +30,7 @@ public class TokenService {
                     .withExpiresAt(dataExpiracao())
                     .sign(algoritmo);
             var id = usuario.getId();
-            return new TokenRequest(token, id);
+            return new TokenRequest(token);
         } catch (JWTCreationException exception){
             throw new RuntimeException("erro ao gerar token jwt", exception);
         }

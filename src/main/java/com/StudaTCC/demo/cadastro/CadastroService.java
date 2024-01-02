@@ -63,7 +63,7 @@ public class CadastroService {
         }
 
         confirmationTokenService.setConfirmedAt(token);
-        usuarioService.enableAppUser(confirmationToken.getUsuario().getEmail());
+        usuarioService.enableUsuario(confirmationToken.getUsuario().getEmail());
         return "confirmed";
     }
 

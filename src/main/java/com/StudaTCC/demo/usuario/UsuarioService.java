@@ -1,8 +1,11 @@
 package com.StudaTCC.demo.usuario;
 
+import com.StudaTCC.demo.usuario.DTO.EditUsuarioRequest;
+import com.StudaTCC.demo.usuario.DTO.ListarUsuarioRequest;
 import com.StudaTCC.demo.usuario.mensagem.MensagemResponse;
 import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import com.StudaTCC.demo.cadastro.token.ConfirmationTokenService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,24 +21,17 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UsuarioService implements UserDetailsService {
-
     private final static String USER_NOT_FOUND_MSG = "user with email %s not found";
 
     private UsuarioRepository usuarioRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private ConfirmationTokenService confirmationTokenService;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(email). orElseThrow(() ->
-                new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
-    }
-
     public String signUsuario(Usuario usuario) {
         boolean userExists = usuarioRepository.findByEmail(usuario.getEmail()).isPresent();
 
         if (userExists) {
-            throw new IllegalStateException("email already taken");
+            throw new DuplicateKeyException("email already taken");
         }
 
         String encodedPassword = bCryptPasswordEncoder.encode(usuario.getPassword());
@@ -54,6 +50,12 @@ public class UsuarioService implements UserDetailsService {
         return token;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String nickName) throws UsernameNotFoundException {
+        return usuarioRepository.findByNickName(nickName). orElseThrow(() ->
+                new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, nickName)));
+    }
+
     public List<ListarUsuarioRequest> listarUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         return usuarios.stream().map(ListarUsuarioRequest::new).collect(Collectors.toList());
@@ -63,23 +65,23 @@ public class UsuarioService implements UserDetailsService {
         Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(()
             -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, usuarioId)));
 
-        if(dados.nome() != null && !dados.nome().isEmpty()){
-            usuario.setNome(dados.nome());
+        if(dados.getNome() != null && !dados.getNome().isEmpty()){
+            usuario.setNome(dados.getNome());
         }
-        if(dados.sobrenome() != null && !dados.sobrenome().isEmpty()){
-            usuario.setSobrenome(dados.sobrenome());
+        if(dados.getSobrenome() != null && !dados.getSobrenome().isEmpty()){
+            usuario.setSobrenome(dados.getSobrenome());
         }
-        if(dados.nickName() != null && !dados.nickName().isEmpty()){
-            usuario.setNickName(dados.nickName());
+        if(dados.getNickName() != null && !dados.getNickName().isEmpty()){
+            usuario.setNickName(dados.getNickName());
         }
-        if(dados.email() != null && !dados.email().isEmpty()){
-            usuario.setEmail(dados.email());
+        if(dados.getEmail() != null && !dados.getEmail().isEmpty()){
+            usuario.setEmail(dados.getEmail());
         }
-        if(dados.senha() != null && !dados.senha().isEmpty()) {
-            usuario.setSenha(bCryptPasswordEncoder.encode(dados.senha()));
+        if(dados.getSenha() != null && !dados.getSenha().isEmpty()) {
+            usuario.setSenha(bCryptPasswordEncoder.encode(dados.getSenha()));
         }
-        if(dados.imagemPerfil() != null && !dados.imagemPerfil().isEmpty()){
-            usuario.setImagemPerfil(dados.imagemPerfil());
+        if(dados.getImagemPerfil() != null && !dados.getImagemPerfil().isEmpty()){
+            usuario.setImagemPerfil(dados.getImagemPerfil());
         }
 
         usuarioRepository.save(usuario);
@@ -92,7 +94,7 @@ public class UsuarioService implements UserDetailsService {
         return new MensagemResponse("Deletado com sucesso!", 200);
     }
 
-    public int enableAppUser(String email) {
+    public int enableUsuario(String email) {
         return usuarioRepository.enableUsuario(email);
     }
 }

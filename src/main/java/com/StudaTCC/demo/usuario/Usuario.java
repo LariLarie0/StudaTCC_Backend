@@ -1,11 +1,10 @@
 package com.StudaTCC.demo.usuario;
 
 import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
+import com.StudaTCC.demo.material.Material;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,9 +32,28 @@ public class Usuario implements UserDetails {
     @Column(unique = true)
     private String nickName;
     private String email;
+    @JsonIgnore
     private String senha;
     @Column(columnDefinition = "TEXT")
     private String imagemPerfil = "https://img.icons8.com/ios/50/user--v1.png";
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followerUsers")
+    private List<Usuario> folowingUsers = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "follow_users",
+            joinColumns = @JoinColumn(name = "followed_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id"))
+    private List<Usuario> followerUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario")
+    private List<Material> materiais;
+//
+//    @JsonIgnore
+//    @ManyToMany(mappedBy = "materiaisSalvos")
+//    private List<Material> materiaisSalvos = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private UsuarioRole usuarioRole;
@@ -64,7 +82,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return nickName;
     }
 
     @Override
@@ -86,5 +104,4 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     }
-
 }

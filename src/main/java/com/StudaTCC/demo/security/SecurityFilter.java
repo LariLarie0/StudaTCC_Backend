@@ -54,8 +54,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     private Usuario confereLoginUsuario(String login){
         var usuarios = usuarioRepository.findAll();
         for(Usuario usu : usuarios){
-            var email = usu.getEmail();
-            if(login.equals(email)){
+            var nickName = usu.getNickName();
+            if(login.equals(nickName)){
                 return usu;
             }
         }
