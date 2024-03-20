@@ -1,7 +1,8 @@
-package com.StudaTCC.demo.material.comentario;
+package com.StudaTCC.demo.comentario;
 
 import com.StudaTCC.demo.material.Material;
-import com.StudaTCC.demo.material.comentario.DTO.AdicionarComentarioRequest;
+import com.StudaTCC.demo.material.MaterialRepository;
+import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.StudaTCC.demo.usuario.UsuarioRepository;
 import com.StudaTCC.demo.usuario.UsuarioService;
@@ -10,17 +11,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class ComentarioService {
     @Autowired
     private ComentarioRepository comentarioRepository;
+    @Autowired
     private UsuarioService usuarioService;
+    @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private MaterialRepository materialRepository;
+
+    private Usuario getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Usuario)
+                ? (Usuario) auth.getPrincipal()
+                : null;
+    }
 
     public Comentario getComentarioById(Long comentarioId) {
         return comentarioRepository.findById(comentarioId).orElseThrow(RuntimeException::new);
-
     }
 
     public Comentario criarNovoComentario(AdicionarComentarioRequest dados, Material material) {
@@ -50,4 +60,11 @@ public class ComentarioService {
             throw new RuntimeException();
         }
     }
+
+//    public List<ListarComentarioRequest> listarComentarios() {
+//        List<Comentario> comentarios = comentarioRepository.findAll();
+//        return comentarios.stream().map(comentario -> new ListarComentarioRequest(
+//                        comentario.getId(), comentario.getTexto(), comentario.getUsuario(),
+//                        comentario.getAvaliacao())).collect(Collectors.toList());
+//    }
 }

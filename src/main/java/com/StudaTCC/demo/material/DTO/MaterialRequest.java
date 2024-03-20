@@ -1,4 +1,4 @@
-package com.StudaTCC.demo.material;
+package com.StudaTCC.demo.material.DTO;
 
 import lombok.*;
 

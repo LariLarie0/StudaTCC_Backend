@@ -4,6 +4,7 @@ import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
 import com.StudaTCC.demo.material.Material;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,9 +20,10 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Entity
+@Transactional
 public class Usuario implements UserDetails {
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConfirmationToken> tokens = new ArrayList<>();
 
     @Id
@@ -37,28 +39,16 @@ public class Usuario implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String imagemPerfil = "https://img.icons8.com/ios/50/user--v1.png";
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "followerUsers")
-    private List<Usuario> folowingUsers = new ArrayList<>();
-
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(name = "follow_users",
-            joinColumns = @JoinColumn(name = "followed_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private List<Usuario> followerUsers = new ArrayList<>();
-
     @OneToMany(mappedBy = "usuario")
     private List<Material> materiais;
-//
-//    @JsonIgnore
-//    @ManyToMany(mappedBy = "materiaisSalvos")
-//    private List<Material> materiaisSalvos = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private UsuarioRole usuarioRole;
     private Boolean locked = false;
     private Boolean enabled = false;
+
+    @ManyToMany(mappedBy = "usuario")
+    private List<Material> curtidos = new ArrayList<>();
 
     public Usuario(String nome, String sobrenome, String nickName, String email, String senha, UsuarioRole usuarioRole) {
         this.nome = nome;

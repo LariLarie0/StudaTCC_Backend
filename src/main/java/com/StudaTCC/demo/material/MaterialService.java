@@ -1,13 +1,15 @@
 package com.StudaTCC.demo.material;
 
 import com.StudaTCC.demo.material.DTO.AdicionarMaterialRequest;
-import com.StudaTCC.demo.material.comentario.Comentario;
-import com.StudaTCC.demo.material.comentario.ComentarioService;
-import com.StudaTCC.demo.material.comentario.DTO.AdicionarComentarioRequest;
+import com.StudaTCC.demo.material.DTO.ListarMaterialRequest;
+import com.StudaTCC.demo.comentario.Comentario;
+import com.StudaTCC.demo.comentario.ComentarioService;
+import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.StudaTCC.demo.usuario.UsuarioService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional
 @RequiredArgsConstructor
+
 public class MaterialService {
     private UsuarioService usuarioService;
     @Autowired
@@ -29,41 +32,34 @@ public class MaterialService {
     @Autowired
     private ComentarioService comentarioService;
 
+    private Usuario getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null && auth.isAuthenticated() && auth.getPrincipal()
+                instanceof Usuario) ? (Usuario) auth.getPrincipal() : null;
+    }
+
     public Material getMaterialById(Long materialId) {
         return materialRepository.findById(materialId).orElseThrow(RuntimeException::new);
     }
 
+    public Material getMaterialByUsuario(Usuario usuario) {
+        return materialRepository.findMaterialByUsuario(usuario);
+    }
+
     public Material adicionarNovoMaterial(AdicionarMaterialRequest dados) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Usuario usuario = null;
-
-        if (auth != null && auth.isAuthenticated()) {
-            Object principal = auth.getPrincipal();
-
-            if (principal instanceof Usuario) {
-                usuario = (Usuario) principal;
-            }
-        }
-
+        Usuario usuario = getAuthenticatedUser();
 
         Material novoMaterial = new Material();
         novoMaterial.setTitulo(dados.titulo());
         novoMaterial.setDescricao(dados.descricao());
         novoMaterial.setConteudo(dados.conteudo());
         novoMaterial.setImagemMaterial(dados.materialFoto());
-//        novoMaterial.setSalvosLista(null);
         novoMaterial.setMaterialComentarios(null);
+        novoMaterial.setLikeList(null);
         novoMaterial.setUsuario(usuario);
-        novoMaterial.setIsTypeShare(false);
-        List<Ref> refs;
-        if (dados.referencias() != null) {
-            refs = dados.referencias().stream()
-                    .map(url -> new Ref(novoMaterial, url))
-                    .collect(Collectors.toList());
-        } else {
-            refs = Collections.emptyList();
-        }
+        List<Ref> refs = (dados.referencias() != null) ? dados.referencias()
+                .stream().map(url -> new Ref(novoMaterial, url))
+                .collect(Collectors.toList()) : Collections.emptyList();
         novoMaterial.setRefs(refs);
 
         return materialRepository.save(novoMaterial);
@@ -71,29 +67,19 @@ public class MaterialService {
 
     @Transactional
     public void deletarMaterial(Long materialId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Usuario usuario = null;
-
-        if (auth != null && auth.isAuthenticated()) {
-            Object principal = auth.getPrincipal();
-
-            if (principal instanceof Usuario) {
-                usuario = (Usuario) principal;
-            }
-        }
-
+        Usuario usuario = getAuthenticatedUser();
         Material materialDeletar = getMaterialById(materialId);
 
         if (materialDeletar.getUsuario().getNickName().equals(usuario.getNickName())) {
-//            materialDeletar.getSalvosLista().forEach(materialSalvo -> {
-//                materialSalvo.setMaterialSalvo(null);
-//                materialRepository.save(materialSalvo);
-//            });
             materialRepository.deleteById(materialId);
         } else {
             throw new RuntimeException();
         }
+    }
+
+    public List<ListarMaterialRequest> listarMateriais() {
+        List<Material> materiais = materialRepository.findAll();
+        return materiais.stream().map(ListarMaterialRequest::new).collect(Collectors.toList());
     }
 
     public Comentario criarMaterialComentario(Long materialId, AdicionarComentarioRequest texto) {
@@ -112,70 +98,33 @@ public class MaterialService {
         Material material = materialRepository.getReferenceById(materialId);
         Comentario comentarioSalvo = comentarioService.criarNovoComentario(texto, material);
         material.setComentarioContagem(material.getComentarioContagem()+1);
-        materialRepository.save(material);
 
+        materialRepository.save(material);
         return comentarioSalvo;
     }
 
-    void deletarMaterialComentario(Long comentarioId, Long materialId) {
+    public void deletarMaterialComentario(Long comentarioId, Long materialId) {
         Material material = getMaterialById(materialId);
         comentarioService.deletarComentario(comentarioId);
         material.setComentarioContagem(material.getComentarioContagem()-1);
+
         materialRepository.save(material);
     }
 
-    Material adicionarMaterialSalvo(Long materialId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Usuario usuario = null;
-
-        if (auth != null && auth.isAuthenticated()) {
-            Object principal = auth.getPrincipal();
-
-            if (principal instanceof Usuario) {
-                usuario = (Usuario) principal;
-            }
-        }
-
+    public void likeMaterial (Long materialId) {
+        Usuario usuario = getAuthenticatedUser();
         Material material = getMaterialById(materialId);
-        if (!material.getIsTypeShare()) {
-            Material novoMeterialSalvo = new Material();
-            novoMeterialSalvo.setUsuario(usuario);
-            novoMeterialSalvo.setIsTypeShare(true);
-//            novoMeterialSalvo.setMaterialSalvo(material);
-            Material salvoMaterialSalvo = materialRepository.save(novoMeterialSalvo);
-//            material.getSalvosLista().add(salvoMaterialSalvo);
-            material.setSalvosContagem(material.getSalvosContagem()+1);
+
+        if(!usuario.getCurtidos().contains(material)) {
+            material.setLikeContagem(material.getLikeContagem()+1);
+            material.getLikeList().add(usuario);
+
             materialRepository.save(material);
-
-            return salvoMaterialSalvo;
         } else {
-            throw new RuntimeException();
+            material.setLikeContagem(material.getLikeContagem()-1);
+            material.getLikeList().remove(usuario);
+
+            materialRepository.save(material);
         }
-    }
-    void deletarMaterialSalvo(Long materialSalvoId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Usuario usuario = null;
-
-        if (auth != null && auth.isAuthenticated()) {
-            Object principal = auth.getPrincipal();
-
-            if (principal instanceof Usuario) {
-                usuario = (Usuario) principal;
-            }
-        }
-
-//        Material materialSalvo = getMaterialById(materialSalvoId);
-//        if (materialSalvo.getUsuario().equals(usuario)) {
-//            Material salvoMaterial = materialSalvo.getMaterialSalvo();
-//            salvoMaterial.getSalvosLista().remove(materialSalvo);
-//            salvoMaterial.setSalvosContagem(salvoMaterial.getSalvosContagem()-1);
-//            materialRepository.save(salvoMaterial);
-//            materialRepository.deleteById(materialSalvoId);
-//
-//        } else {
-//            throw new RuntimeException();
-//        }
     }
 }

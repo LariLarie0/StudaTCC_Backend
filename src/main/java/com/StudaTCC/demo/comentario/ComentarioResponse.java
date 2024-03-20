@@ -1,4 +1,4 @@
-package com.StudaTCC.demo.material.comentario;
+package com.StudaTCC.demo.comentario;
 
 import lombok.*;
 

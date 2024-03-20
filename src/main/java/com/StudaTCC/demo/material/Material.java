@@ -1,8 +1,10 @@
 package com.StudaTCC.demo.material;
 
-import com.StudaTCC.demo.material.comentario.Comentario;
+import com.StudaTCC.demo.comentario.Comentario;
 import com.StudaTCC.demo.usuario.Usuario;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,8 +16,11 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+@Transactional
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Material {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,18 +33,33 @@ public class Material {
     private String descricao;
     @Column(unique = true, columnDefinition = "LONGTEXT")
     private String conteudo;
-    private String imagemMaterial;
+    @Column(columnDefinition = "TEXT")
+    private String imagemMaterial = "https://img.icons8.com/ios/50/document--v1.png";
 
-    private int comentarioContagem = 0;
-    private int salvosContagem;
+    private int comentarioContagem;
+    private int likeContagem;
 
-    @Column(nullable = false)
-    private Boolean isTypeShare;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ref> refs;
 
+    @JsonBackReference
+    @JsonIgnore
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
-    private List<Comentario> materialComentarios = new ArrayList<>();
+    private List<Comentario> materialComentarios;
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "material_likes",
+            joinColumns = @JoinColumn(name = "material_id"),
+            inverseJoinColumns = @JoinColumn(name = "liker_id")
+    )
+    private List<Usuario> likeList = new ArrayList<>();
+
+    @JsonManagedReference
+    @JsonIgnore
+    public void setMaterialComentarios(List<Comentario> materialComentarios) {
+        this.materialComentarios = materialComentarios;
+    }
 }
