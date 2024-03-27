@@ -47,7 +47,7 @@ public class Usuario implements UserDetails {
     private Boolean locked = false;
     private Boolean enabled = false;
 
-    @ManyToMany(mappedBy = "usuario")
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Material> curtidos = new ArrayList<>();
 
     public Usuario(String nome, String sobrenome, String nickName, String email, String senha, UsuarioRole usuarioRole) {

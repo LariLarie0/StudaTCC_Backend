@@ -39,7 +39,16 @@ public class MaterialController {
 
     @PostMapping("/like/{materialId}")
     public ResponseEntity<?> likeMaterial(@PathVariable("materialId") Long materialId) {
-        materialService.likeMaterial(materialId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            boolean liked = materialService.likeMaterial(materialId);
+            if (liked) {
+                return ResponseEntity.ok("Material curtido com sucesso!");
+
+            } else {
+                return ResponseEntity.ok("Curtida removida com sucesso!");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Falha ao realizar a ação no material:" + e.getMessage());
+        }
     }
 }

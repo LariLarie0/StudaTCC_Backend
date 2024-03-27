@@ -6,9 +6,11 @@ import com.StudaTCC.demo.comentario.Comentario;
 import com.StudaTCC.demo.comentario.ComentarioService;
 import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.usuario.Usuario;
+import com.StudaTCC.demo.usuario.UsuarioRepository;
 import com.StudaTCC.demo.usuario.UsuarioService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -31,6 +33,8 @@ public class MaterialService {
     private MaterialRepository materialRepository;
     @Autowired
     private ComentarioService comentarioService;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     private Usuario getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -111,20 +115,35 @@ public class MaterialService {
         materialRepository.save(material);
     }
 
-    public void likeMaterial (Long materialId) {
+    public boolean likeMaterial (Long materialId) {
         Usuario usuario = getAuthenticatedUser();
+        int i = 0;
+        System.out.println(materialId);
+        Hibernate.initialize(usuario.getCurtidos());
+
+        for(Material curtido : usuario.getCurtidos()) {
+            System.out.println((curtido.getId() == materialId) + " " + i);
+            if(curtido.getId() == materialId) {
+                usuario.getCurtidos().remove(i);
+                curtido.getLikeList().removeIf(c -> c.getId() == usuario.getId());
+                curtido.setLikeContagem(curtido.getLikeContagem() - 1);
+
+                usuarioRepository.saveAndFlush(usuario);
+                materialRepository.saveAndFlush(curtido);
+                return false;
+            }
+
+            i++;
+        }
+
         Material material = getMaterialById(materialId);
 
-        if(!usuario.getCurtidos().contains(material)) {
-            material.setLikeContagem(material.getLikeContagem()+1);
-            material.getLikeList().add(usuario);
+        usuario.getCurtidos().add(material);
+        material.getLikeList().add(usuario);
+        material.setLikeContagem(material.getLikeContagem() + 1);
 
-            materialRepository.save(material);
-        } else {
-            material.setLikeContagem(material.getLikeContagem()-1);
-            material.getLikeList().remove(usuario);
-
-            materialRepository.save(material);
-        }
+        usuarioRepository.saveAndFlush(usuario);
+        materialRepository.saveAndFlush(material);
+        return true;
     }
 }

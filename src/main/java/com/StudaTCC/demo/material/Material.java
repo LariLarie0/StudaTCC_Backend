@@ -48,8 +48,7 @@ public class Material {
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
     private List<Comentario> materialComentarios;
 
-    @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "material_likes",
             joinColumns = @JoinColumn(name = "material_id"),
