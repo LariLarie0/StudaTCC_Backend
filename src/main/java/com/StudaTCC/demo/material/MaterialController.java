@@ -2,10 +2,8 @@ package com.StudaTCC.demo.material;
 
 import com.StudaTCC.demo.material.DTO.AdicionarMaterialRequest;
 import com.StudaTCC.demo.material.DTO.ListarMaterialRequest;
-import com.StudaTCC.demo.usuario.DTO.ListarUsuarioRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

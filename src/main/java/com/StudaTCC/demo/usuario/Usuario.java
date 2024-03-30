@@ -2,6 +2,7 @@ package com.StudaTCC.demo.usuario;
 
 import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
 import com.StudaTCC.demo.material.Material;
+import com.StudaTCC.demo.pasta.Pasta;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
@@ -49,6 +50,9 @@ public class Usuario implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Material> curtidos = new ArrayList<>();
+
+    @OneToMany(mappedBy="usuario")
+    private List<Pasta> pastas;
 
     public Usuario(String nome, String sobrenome, String nickName, String email, String senha, UsuarioRole usuarioRole) {
         this.nome = nome;

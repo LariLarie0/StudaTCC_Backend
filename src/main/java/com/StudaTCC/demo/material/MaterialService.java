@@ -11,7 +11,6 @@ import com.StudaTCC.demo.usuario.UsuarioService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,9 +25,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional
 @RequiredArgsConstructor
-
 public class MaterialService {
-    private UsuarioService usuarioService;
     @Autowired
     private MaterialRepository materialRepository;
     @Autowired

@@ -1,6 +1,7 @@
 package com.StudaTCC.demo.material;
 
 import com.StudaTCC.demo.comentario.Comentario;
+import com.StudaTCC.demo.pasta.Pasta;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
@@ -55,6 +56,9 @@ public class Material {
             inverseJoinColumns = @JoinColumn(name = "liker_id")
     )
     private List<Usuario> likeList = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "materiais")
+    private List<Pasta> pastas;
 
     @JsonManagedReference
     @JsonIgnore
