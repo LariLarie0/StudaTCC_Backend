@@ -1,24 +1,28 @@
 package com.StudaTCC.demo.comentario;
 
+import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.material.Material;
 import com.StudaTCC.demo.material.MaterialRepository;
-import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.usuario.Usuario;
-import com.StudaTCC.demo.usuario.UsuarioRepository;
-import com.StudaTCC.demo.usuario.UsuarioService;
+
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
+@AllArgsConstructor
+@Transactional
+@RequiredArgsConstructor
 public class ComentarioService {
     @Autowired
     private ComentarioRepository comentarioRepository;
-    @Autowired
-    private UsuarioService usuarioService;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
     @Autowired
     private MaterialRepository materialRepository;
 
@@ -29,42 +33,39 @@ public class ComentarioService {
                 : null;
     }
 
-    public Comentario getComentarioById(Long comentarioId) {
-        return comentarioRepository.findById(comentarioId).orElseThrow(RuntimeException::new);
+    public Material getMaterialById(Long materialId) {
+        return materialRepository.findById(materialId).orElseThrow(RuntimeException::new);
     }
 
-    public Comentario criarNovoComentario(AdicionarComentarioRequest dados, Material material) {
-        try{
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuario = (Usuario) auth.getPrincipal();
+    public Comentario criarNovoComentario(Long materialId, AdicionarComentarioRequest dados) {
+        Usuario usuario = getAuthenticatedUser();
+        Material material = materialRepository.findById(materialId).orElseThrow(()
+                -> new NoSuchElementException("Material não encontrado com o ID: " + materialId));
 
-            Comentario novoComentario = new Comentario();
-            novoComentario.setTexto(dados.texto());
-            novoComentario.setUsuario(usuario);
-            novoComentario.setMaterial(material);
+        Comentario novoComentario = new Comentario();
+        novoComentario.setTexto(dados.texto());
+        novoComentario.setUsuario(usuario);
+        novoComentario.setMaterial(material);
+        material.setComentarioContagem(material.getComentarioContagem()+1);
 
-            return comentarioRepository.save(novoComentario);
-        }catch (Exception ex){
-            return null;
-        }
+        return comentarioRepository.save(novoComentario);
     }
 
-    public void deletarComentario(Long comentarioId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuario = (Usuario) auth.getPrincipal();
+    public List<Comentario> listComentarioByMaterial(Long materialId) {
+        return comentarioRepository.findByMaterialId(materialId);
+    }
 
-        Comentario comentario = getComentarioById(comentarioId);
+    public void deletarComentario(Long comentarioId, Long materialId) {
+        Usuario usuario = getAuthenticatedUser();
+        Material material = getMaterialById(materialId);
+        Comentario comentario = comentarioRepository.findById(comentarioId)
+                .orElseThrow(() -> new NoSuchElementException("Comentário não encontrado com o ID: " + comentarioId));
+
         if (comentario.getUsuario().equals(usuario)) {
-            comentarioRepository.deleteById(comentarioId);
+            comentarioRepository.delete(comentario);
+            material.setComentarioContagem(material.getComentarioContagem()-1);
         } else {
             throw new RuntimeException();
         }
     }
-
-//    public List<ListarComentarioRequest> listarComentarios() {
-//        List<Comentario> comentarios = comentarioRepository.findAll();
-//        return comentarios.stream().map(comentario -> new ListarComentarioRequest(
-//                        comentario.getId(), comentario.getTexto(), comentario.getUsuario(),
-//                        comentario.getAvaliacao())).collect(Collectors.toList());
-//    }
 }

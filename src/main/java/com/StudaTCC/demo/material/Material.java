@@ -37,6 +37,8 @@ public class Material {
     @Column(columnDefinition = "TEXT")
     private String imagemMaterial = "https://img.icons8.com/ios/50/document--v1.png";
 
+    @Column(nullable = false)
+    private int nota;
     private int comentarioContagem;
     private int likeContagem;
 
@@ -44,8 +46,7 @@ public class Material {
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ref> refs;
 
-    @JsonBackReference
-    @JsonIgnore
+    @JsonIgnoreProperties("material")
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
     private List<Comentario> materialComentarios;
 

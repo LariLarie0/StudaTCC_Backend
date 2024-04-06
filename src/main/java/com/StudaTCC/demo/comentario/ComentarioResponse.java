@@ -9,5 +9,4 @@ import lombok.*;
 @Builder
 public class ComentarioResponse {
     private Comentario comentario;
-    private Boolean likedByAuthUser;
 }

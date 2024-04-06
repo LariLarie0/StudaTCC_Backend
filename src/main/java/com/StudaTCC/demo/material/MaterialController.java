@@ -35,6 +35,12 @@ public class MaterialController {
         return ResponseEntity.status(200).body(response);
     }
 
+    @GetMapping("/listar/{usuarioId}")
+    public ResponseEntity<List<Material>> listMaterialByUsuario(@PathVariable Long usuarioId) {
+        List<Material> materiais = materialService.listMaterialByUsuario(usuarioId);
+        return ResponseEntity.ok(materiais);
+    }
+
     @PostMapping("/like/{materialId}")
     public ResponseEntity<?> likeMaterial(@PathVariable("materialId") Long materialId) {
         try {

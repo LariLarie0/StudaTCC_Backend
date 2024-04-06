@@ -1,39 +1,41 @@
 package com.StudaTCC.demo.comentario;
 
-import com.StudaTCC.demo.material.MaterialService;
 import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
+import com.StudaTCC.demo.material.Material;
+import com.StudaTCC.demo.material.MaterialRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/comentario")
 public class ComentarioController {
-
     @Autowired
-    private MaterialService materialService;
-    private ComentarioRepository comentarioRepository;
     private ComentarioService comentarioService;
+    @Autowired
+    private MaterialRepository materialRepository;
 
     @PostMapping("/criar/{materialId}")
-    @CrossOrigin
-    public ResponseEntity<?> criarNovoComentario(@PathVariable("materialId") Long materialId,
-                                                     @RequestBody @Valid AdicionarComentarioRequest dados) {
+    public ResponseEntity<Comentario> criarNovoComentario(@PathVariable Long materialId,
+                                                          @RequestBody AdicionarComentarioRequest dados) {
 
-        Comentario comentarioSalvo = materialService.criarMaterialComentario(materialId, dados);
-        return ResponseEntity.status(HttpStatus.CREATED).body(comentarioSalvo);
+        Comentario comentarioSalvo = comentarioService.criarNovoComentario(materialId, dados);
+        return ResponseEntity.ok(comentarioSalvo);
+    }
+
+    @GetMapping("/listar/{materialId}")
+    public ResponseEntity<List<Comentario>> listComentaroByMaterial(@PathVariable Long materialId) {
+        List<Comentario> comentarios = comentarioService.listComentarioByMaterial(materialId);
+        return ResponseEntity.ok(comentarios);
     }
 
     @DeleteMapping("/deletar/{comentarioId}")
-    public ResponseEntity<?> deletarMaterialComentario(@PathVariable("comentarioId") Long comentarioId, Long materialId) {
-        materialService.deletarMaterialComentario(comentarioId, materialId);
+    public ResponseEntity<Comentario> deletarComentario(@PathVariable Long comentarioId, Long materialId) {
+        comentarioService.deletarComentario(comentarioId, materialId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-//    @GetMapping("/listar/{materialId}")
-//    public ResponseEntity<List<AvaliacaoRequest>> mediaAvaliacao(@PathVariable Long materialId){
-//        List<AvaliacaoRequest> comentarios =
-//    }
 }

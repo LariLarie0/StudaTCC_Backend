@@ -1,24 +1,24 @@
 package com.StudaTCC.demo.material;
 
+import com.StudaTCC.demo.comentario.Comentario;
 import com.StudaTCC.demo.material.DTO.AdicionarMaterialRequest;
 import com.StudaTCC.demo.material.DTO.ListarMaterialRequest;
-import com.StudaTCC.demo.comentario.Comentario;
-import com.StudaTCC.demo.comentario.ComentarioService;
-import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.StudaTCC.demo.usuario.UsuarioRepository;
-import com.StudaTCC.demo.usuario.UsuarioService;
+
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
+import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Collections;
+import java.text.DecimalFormat;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 public class MaterialService {
     @Autowired
     private MaterialRepository materialRepository;
-    @Autowired
-    private ComentarioService comentarioService;
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -41,10 +39,6 @@ public class MaterialService {
 
     public Material getMaterialById(Long materialId) {
         return materialRepository.findById(materialId).orElseThrow(RuntimeException::new);
-    }
-
-    public Material getMaterialByUsuario(Usuario usuario) {
-        return materialRepository.findMaterialByUsuario(usuario);
     }
 
     public Material adicionarNovoMaterial(AdicionarMaterialRequest dados) {
@@ -83,33 +77,8 @@ public class MaterialService {
         return materiais.stream().map(ListarMaterialRequest::new).collect(Collectors.toList());
     }
 
-    public Comentario criarMaterialComentario(Long materialId, AdicionarComentarioRequest texto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Usuario usuario = null;
-
-        if (auth != null && auth.isAuthenticated()) {
-            Object principal = auth.getPrincipal();
-
-            if (principal instanceof Usuario) {
-                usuario = (Usuario) principal;
-            }
-        }
-
-        Material material = materialRepository.getReferenceById(materialId);
-        Comentario comentarioSalvo = comentarioService.criarNovoComentario(texto, material);
-        material.setComentarioContagem(material.getComentarioContagem()+1);
-
-        materialRepository.save(material);
-        return comentarioSalvo;
-    }
-
-    public void deletarMaterialComentario(Long comentarioId, Long materialId) {
-        Material material = getMaterialById(materialId);
-        comentarioService.deletarComentario(comentarioId);
-        material.setComentarioContagem(material.getComentarioContagem()-1);
-
-        materialRepository.save(material);
+    public List<Material> listMaterialByUsuario(Long usuarioId) {
+        return materialRepository.findByUsuarioId(usuarioId);
     }
 
     public boolean likeMaterial (Long materialId) {
@@ -142,5 +111,26 @@ public class MaterialService {
         usuarioRepository.saveAndFlush(usuario);
         materialRepository.saveAndFlush(material);
         return true;
+    }
+
+    public Material notaMaterial(Long materialId) {
+        Material material = materialRepository.findById(materialId)
+                .orElseThrow(() -> new NoSuchElementException("Material não encontrado com o ID: " + materialId));
+
+        List<Comentario> comentarios = material.getMaterialComentarios();
+        if (comentarios.isEmpty()) {
+            material.setNota(5);
+        } else {
+            double totalNotas = 0;
+            for (Comentario comentario : comentarios) {
+                totalNotas += comentario.getNota();
+            }
+            double mediaNotas = totalNotas / comentarios.size();
+            DecimalFormat df = new DecimalFormat("#.##");
+            String mediaFormatada = df.format(mediaNotas);
+            material.setNota(Integer.parseInt(mediaFormatada));
+        }
+
+        return materialRepository.save(material);
     }
 }
