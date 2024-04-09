@@ -7,6 +7,6 @@ public record AdicionarComentarioRequest(
         Long usuarioId,
         @NotEmpty
         String texto,
-        int avaliacao
+        double nota
 ){
 }

@@ -38,7 +38,7 @@ public class Material {
     private String imagemMaterial = "https://img.icons8.com/ios/50/document--v1.png";
 
     @Column(nullable = false)
-    private int nota;
+    private double avaliacao;
     private int comentarioContagem;
     private int likeContagem;
 

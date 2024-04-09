@@ -1,25 +1,24 @@
 package com.StudaTCC.demo.material;
 
-import com.StudaTCC.demo.comentario.Comentario;
-import com.StudaTCC.demo.material.DTO.AdicionarMaterialRequest;
-import com.StudaTCC.demo.material.DTO.ListarMaterialRequest;
 import com.StudaTCC.demo.usuario.Usuario;
+import com.StudaTCC.demo.comentario.Comentario;
 import com.StudaTCC.demo.usuario.UsuarioRepository;
+import com.StudaTCC.demo.material.DTO.ListarMaterialRequest;
+import com.StudaTCC.demo.material.DTO.AdicionarMaterialRequest;
 
+import org.hibernate.Hibernate;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Collections;
-import java.text.DecimalFormat;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -119,18 +118,19 @@ public class MaterialService {
 
         List<Comentario> comentarios = material.getMaterialComentarios();
         if (comentarios.isEmpty()) {
-            material.setNota(5);
+            material.setAvaliacao(0);
         } else {
             double totalNotas = 0;
             for (Comentario comentario : comentarios) {
                 totalNotas += comentario.getNota();
             }
-            double mediaNotas = totalNotas / comentarios.size();
-            DecimalFormat df = new DecimalFormat("#.##");
-            String mediaFormatada = df.format(mediaNotas);
-            material.setNota(Integer.parseInt(mediaFormatada));
-        }
+            double mediaNotas = totalNotas / Double.valueOf(material.getComentarioContagem());
 
+            String resultado = String.format("%.2f", mediaNotas);
+            resultado = resultado.replace(",", ".");
+
+            material.setAvaliacao(Double.parseDouble(resultado));
+        }
         return materialRepository.save(material);
     }
 }

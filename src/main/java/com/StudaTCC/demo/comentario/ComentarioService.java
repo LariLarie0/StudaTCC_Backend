@@ -3,14 +3,15 @@ package com.StudaTCC.demo.comentario;
 import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
 import com.StudaTCC.demo.material.Material;
 import com.StudaTCC.demo.material.MaterialRepository;
+import com.StudaTCC.demo.material.MaterialService;
 import com.StudaTCC.demo.usuario.Usuario;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public class ComentarioService {
     private ComentarioRepository comentarioRepository;
     @Autowired
     private MaterialRepository materialRepository;
+    @Autowired
+    private MaterialService materialService;
 
     private Usuario getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -44,11 +47,14 @@ public class ComentarioService {
 
         Comentario novoComentario = new Comentario();
         novoComentario.setTexto(dados.texto());
+        novoComentario.setNota(dados.nota());
         novoComentario.setUsuario(usuario);
         novoComentario.setMaterial(material);
         material.setComentarioContagem(material.getComentarioContagem()+1);
+        comentarioRepository.save(novoComentario);
+        materialService.notaMaterial(materialId);
 
-        return comentarioRepository.save(novoComentario);
+        return novoComentario;
     }
 
     public List<Comentario> listComentarioByMaterial(Long materialId) {
@@ -61,11 +67,11 @@ public class ComentarioService {
         Comentario comentario = comentarioRepository.findById(comentarioId)
                 .orElseThrow(() -> new NoSuchElementException("Comentário não encontrado com o ID: " + comentarioId));
 
-        if (comentario.getUsuario().equals(usuario)) {
-            comentarioRepository.delete(comentario);
-            material.setComentarioContagem(material.getComentarioContagem()-1);
-        } else {
+        if (usuario == null || !comentario.getUsuario().getId().equals(usuario.getId())) {
             throw new RuntimeException();
         }
+
+        comentarioRepository.delete(comentario);
+        material.setComentarioContagem(material.getComentarioContagem()-1);
     }
 }

@@ -42,12 +42,18 @@ public class PastaService {
     }
 
     public void adicionarMaterialNaPasta(Long pastaId, Long materialId) {
-        Pasta pasta = pastaRepository.findById(pastaId).orElseThrow(() -> new RuntimeException("Pasta não encontrada."));
-        Material material = materialRepository.findById(materialId).orElseThrow(() -> new RuntimeException("Material não encontrado."));
+        Pasta pasta = pastaRepository.findById(pastaId)
+                .orElseThrow(() -> new RuntimeException("Pasta não encontrada"));
+        Material material = materialRepository.findById(materialId)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
         Usuario usuario = getAuthenticatedUser();
 
-        if (usuario == null || !pasta.getUsuario().equals(usuario)) {
-            throw new RuntimeException("Usuário não tem permissão para adicionar material nesta pasta.");
+        if (usuario == null || !pasta.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Usuário não pode adicionar material nesta pasta");
+        }
+
+        if (pasta.getMateriais().contains(material)) {
+            throw new RuntimeException("O material já foi adicionado a pasta");
         }
 
         pasta.getMateriais().add(material);
@@ -55,12 +61,14 @@ public class PastaService {
     }
 
     public void removerMaterialDaPasta(Long pastaId, Long materialId) {
-        Pasta pasta = pastaRepository.findById(pastaId).orElseThrow(() -> new RuntimeException("Pasta não encontrada."));
-        Material material = materialRepository.findById(materialId).orElseThrow(() -> new RuntimeException("Material não encontrado."));
+        Pasta pasta = pastaRepository.findById(pastaId)
+                .orElseThrow(() -> new RuntimeException("Pasta não encontrada"));
+        Material material = materialRepository.findById(materialId)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
         Usuario usuario = getAuthenticatedUser();
 
-        if (usuario == null || !pasta.getUsuario().equals(usuario)) {
-            throw new RuntimeException("Usuário não tem permissão para remover material desta pasta.");
+        if (usuario == null || !pasta.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Usuário não pode remover material desta pasta");
         }
 
         pasta.getMateriais().remove(material);
@@ -68,11 +76,12 @@ public class PastaService {
     }
 
     public void excluirPasta(Long pastaId) {
-        Pasta pasta = pastaRepository.findById(pastaId).orElseThrow(() -> new RuntimeException("Pasta não encontrada."));
+        Pasta pasta = pastaRepository.findById(pastaId)
+                .orElseThrow(() -> new RuntimeException("Pasta não encontrada."));
         Usuario usuario = getAuthenticatedUser();
 
-        if (usuario == null || !pasta.getUsuario().equals(usuario)) {
-            throw new RuntimeException("Usuário não tem permissão para excluir esta pasta.");
+        if (usuario == null || !pasta.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Usuário não pode excluir esta pasta");
         }
 
         pastaRepository.deleteById(pastaId);

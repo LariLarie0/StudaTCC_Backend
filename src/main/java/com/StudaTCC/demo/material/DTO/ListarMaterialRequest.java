@@ -13,7 +13,7 @@ public record ListarMaterialRequest(
 
     public ListarMaterialRequest(Material material){
         this(material.getId(), material.getTitulo(), material.getDescricao(),
-             material.getNota(), material.getComentarioContagem(),
+             material.getAvaliacao(), material.getComentarioContagem(),
              material.getLikeContagem(), material.getImagemMaterial());
     }
 }
