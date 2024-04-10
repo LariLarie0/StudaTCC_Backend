@@ -11,6 +11,8 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.CascadeType.REMOVE;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -46,9 +48,9 @@ public class Material {
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ref> refs;
 
-    @JsonIgnoreProperties("material")
-    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
-    private List<Comentario> materialComentarios;
+    @JsonIgnore
+    @OneToMany(mappedBy = "material",  cascade = REMOVE, fetch = FetchType.EAGER)
+    private List<Comentario> materialComentarios = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

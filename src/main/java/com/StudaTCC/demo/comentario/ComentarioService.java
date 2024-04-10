@@ -50,7 +50,10 @@ public class ComentarioService {
         novoComentario.setNota(dados.nota());
         novoComentario.setUsuario(usuario);
         novoComentario.setMaterial(material);
+        usuario.getComentarios().add(novoComentario);
+        material.getMaterialComentarios().add(novoComentario);
         material.setComentarioContagem(material.getComentarioContagem()+1);
+
         comentarioRepository.save(novoComentario);
         materialService.notaMaterial(materialId);
 

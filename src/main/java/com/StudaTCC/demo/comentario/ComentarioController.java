@@ -1,10 +1,7 @@
 package com.StudaTCC.demo.comentario;
 
 import com.StudaTCC.demo.comentario.DTO.AdicionarComentarioRequest;
-import com.StudaTCC.demo.material.Material;
-import com.StudaTCC.demo.material.MaterialRepository;
-import jakarta.validation.Valid;
-import org.jline.terminal.TerminalBuilder;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +16,7 @@ public class ComentarioController {
     private ComentarioService comentarioService;
 
     @PostMapping("/criar/{materialId}")
+    @Transactional
     public ResponseEntity<Comentario> criarNovoComentario(@PathVariable Long materialId,
                                                           @RequestBody AdicionarComentarioRequest dados) {
 
@@ -27,7 +25,7 @@ public class ComentarioController {
     }
 
     @GetMapping("/listar/{materialId}")
-    public ResponseEntity<List<Comentario>> listComentaroByMaterial(@PathVariable Long materialId) {
+    public ResponseEntity<List<Comentario>> listComentarioByMaterial(@PathVariable Long materialId) {
         List<Comentario> comentarios = comentarioService.listComentarioByMaterial(materialId);
         return ResponseEntity.ok(comentarios);
     }

@@ -1,6 +1,7 @@
 package com.StudaTCC.demo.usuario;
 
 import com.StudaTCC.demo.cadastro.token.ConfirmationToken;
+import com.StudaTCC.demo.comentario.Comentario;
 import com.StudaTCC.demo.material.Material;
 import com.StudaTCC.demo.pasta.Pasta;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static jakarta.persistence.CascadeType.REMOVE;
 
 @Getter
 @Setter
@@ -43,6 +46,10 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario")
     private List<Material> materiais;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "usuario", cascade = REMOVE, fetch = FetchType.EAGER)
+    private List<Comentario> comentarios = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private UsuarioRole usuarioRole;
     private Boolean locked = false;
@@ -51,8 +58,9 @@ public class Usuario implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Material> curtidos = new ArrayList<>();
 
-    @OneToMany(mappedBy="usuario")
-    private List<Pasta> pastas;
+    @JsonIgnore
+    @OneToMany(mappedBy = "usuario", cascade = REMOVE, fetch = FetchType.EAGER)
+    private List<Pasta> pastas = new ArrayList<>();
 
     public Usuario(String nome, String sobrenome, String nickName, String email, String senha, UsuarioRole usuarioRole) {
         this.nome = nome;

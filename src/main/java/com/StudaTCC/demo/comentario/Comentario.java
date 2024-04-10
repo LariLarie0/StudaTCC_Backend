@@ -3,6 +3,7 @@ package com.StudaTCC.demo.comentario;
 import com.StudaTCC.demo.material.Material;
 import com.StudaTCC.demo.usuario.Usuario;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -29,10 +30,12 @@ public class Comentario {
     @Max(value = 5)
     private double nota;
 
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "Usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "material_id", nullable = false)
     private Material material;

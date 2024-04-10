@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Transactional
@@ -41,6 +43,10 @@ public class PastaService {
         return pastaRepository.save(novaPasta);
     }
 
+    public List<Pasta> listPastaByUsuario(Long usuarioId) {
+        return pastaRepository.findByUsuarioId(usuarioId);
+    }
+
     public void adicionarMaterialNaPasta(Long pastaId, Long materialId) {
         Pasta pasta = pastaRepository.findById(pastaId)
                 .orElseThrow(() -> new RuntimeException("Pasta não encontrada"));
@@ -59,6 +65,8 @@ public class PastaService {
         pasta.getMateriais().add(material);
         pastaRepository.save(pasta);
     }
+
+
 
     public void removerMaterialDaPasta(Long pastaId, Long materialId) {
         Pasta pasta = pastaRepository.findById(pastaId)

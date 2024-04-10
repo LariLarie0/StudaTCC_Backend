@@ -97,7 +97,6 @@ public class MaterialService {
                 materialRepository.saveAndFlush(curtido);
                 return false;
             }
-
             i++;
         }
 
@@ -117,19 +116,15 @@ public class MaterialService {
                 .orElseThrow(() -> new NoSuchElementException("Material não encontrado com o ID: " + materialId));
 
         List<Comentario> comentarios = material.getMaterialComentarios();
-        if (comentarios.isEmpty()) {
+        int comentarioContagem = material.getComentarioContagem();
+
+        if (comentarioContagem == 0) {
             material.setAvaliacao(0);
         } else {
-            double totalNotas = 0;
-            for (Comentario comentario : comentarios) {
-                totalNotas += comentario.getNota();
-            }
-            double mediaNotas = totalNotas / Double.valueOf(material.getComentarioContagem());
+            double totalNotas = comentarios.stream().mapToDouble(Comentario::getNota).sum();
+            double mediaNotas = totalNotas / comentarioContagem;
 
-            String resultado = String.format("%.2f", mediaNotas);
-            resultado = resultado.replace(",", ".");
-
-            material.setAvaliacao(Double.parseDouble(resultado));
+            material.setAvaliacao(Math.round(mediaNotas * 100.0) / 100.0);
         }
         return materialRepository.save(material);
     }
