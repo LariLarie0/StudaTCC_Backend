@@ -9,11 +9,12 @@ public record ListarMaterialRequest(
         double nota,
         int comentarioContagem,
         int likeContagem,
+        boolean resultadoVerificacao,
         String imagemMaterial) {
 
     public ListarMaterialRequest(Material material){
         this(material.getId(), material.getTitulo(), material.getDescricao(),
              material.getAvaliacao(), material.getComentarioContagem(),
-             material.getLikeContagem(), material.getImagemMaterial());
+             material.getLikeContagem(), material.isResultadoVerificacao(), material.getImagemMaterial());
     }
 }

@@ -44,6 +44,8 @@ public class Material {
     private int comentarioContagem;
     private int likeContagem;
 
+    private boolean resultadoVerificacao;
+
     @JsonIgnore
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ref> refs;

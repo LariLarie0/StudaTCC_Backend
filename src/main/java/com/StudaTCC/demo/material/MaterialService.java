@@ -55,8 +55,30 @@ public class MaterialService {
                 .stream().map(url -> new Ref(novoMaterial, url))
                 .collect(Collectors.toList()) : Collections.emptyList();
         novoMaterial.setRefs(refs);
+        novoMaterial.setResultadoVerificacao(algoritmo(dados.conteudo()));
 
         return materialRepository.save(novoMaterial);
+    }
+
+    public boolean algoritmo (String conteudo) {
+        int pontuacao = 1000;
+
+        String[] frases = conteudo.split("[.!?]");
+
+        for (String frase : frases) {
+            String[] palavras = frase.trim().split("\\s+");
+            int numPalavras = palavras.length;
+
+            if (numPalavras > 20) {
+                int desconto = (numPalavras - 20) * 2 + 10;
+                pontuacao -= desconto;
+            }
+        }
+        if (pontuacao >= 800) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Transactional
